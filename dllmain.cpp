@@ -21,7 +21,7 @@ int main() {
     FARPROC func = GetProcAddress(modulewintrust, "WinVerifyTrust");
     std::vector<BYTE> orig(6), hook = { 0x48, 0x31, 0xC0, 0x59, 0xFF, 0xE1 }; // sigma byte
     ModifyFunc(process, func, hook, orig);
-    DWORD tid = GetWindowThreadProcessId(FindWindowA(nullptr, "Roblox"), nullptr);
+    DWORD tid = GetWindowThreadProcessId(FindWindowA(nullptr, "FC24"), nullptr);
     HHOOK HookHandle = SetWindowsHookExA(WH_GETMESSAGE, (HOOKPROC)Callback, dll, tid);
     if (!HookHandle) return EXIT_FAILURE;
     PostThreadMessageA(tid, WM_NULL, 0, 0);

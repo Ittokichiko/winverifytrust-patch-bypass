@@ -14,32 +14,17 @@ DWORD GetProcId(const char* title) {
     GetWindowThreadProcessId(hwnd, &pid);
     return pid;
 }
- 
-HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, GetProcId("Roblox"));
- 
-HMODULE module = LoadLibraryA("wintrust.dll");
- 
-FARPROC func = GetProcAddress(module, "WinVerifyTrust");
- 
-std::vector<BYTE> orig(6), hook = { 0x48, 0x31, 0xC0, 0x59, 0xFF, 0xE1 }; // sigma byte
 
 int main() {
- 
+    HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, GetProcId("FC24"));
+    HMODULE modulewintrust = LoadLibraryA("wintrust.dll");
+    FARPROC func = GetProcAddress(modulewintrust, "WinVerifyTrust");
+    std::vector<BYTE> orig(6), hook = { 0x48, 0x31, 0xC0, 0x59, 0xFF, 0xE1 }; // sigma byte
     ModifyFunc(process, func, hook, orig);
- 
-    HMODULE dll = LoadLibraryExA("urdll.dll", nullptr, DONT_RESOLVE_DLL_REFERENCES); // your dll
-    if (!dll) return EXIT_FAILURE;
- 
-    FARPROC Callback = GetProcAddress(dll, "urcallback"); // your dll's callback
-    if (!Callback) return EXIT_FAILURE;
- 
     DWORD tid = GetWindowThreadProcessId(FindWindowA(nullptr, "Roblox"), nullptr);
     HHOOK HookHandle = SetWindowsHookExA(WH_GETMESSAGE, (HOOKPROC)Callback, dll, tid);
     if (!HookHandle) return EXIT_FAILURE;
- 
     PostThreadMessageA(tid, WM_NULL, 0, 0);
-    std::cin.get();
- 
     UnhookWindowsHookEx(HookHandle);
     WriteProcessMemory(process, func, orig.data(), orig.size(), nullptr);
     return EXIT_SUCCESS;

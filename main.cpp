@@ -4,7 +4,7 @@
 #include <iostream>
  
 void ModifyFunc(HANDLE process, LPVOID addr, const std::vector<BYTE>& newBytes, std::vector<BYTE>& origBytes) {
-    WriteProcessMemory(process, addr, newBytes.data(), newBytes.size(), nullptr);
+    WriteProcessMemory(process, addr, newBytes.data(), origBytes.size(), nullptr);
 }
  
 DWORD GetProcId(const char* title) {
